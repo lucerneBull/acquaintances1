@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Привет! Давай познакомимся?</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg1:#ffe3e8; --bg2:#fff4e6; --card:#ffffff; --text:#4a2a33; --muted:#9a6a76;
+  --accent:#ff7182; --accent2:#ff9aa8; --shadow:rgba(255,113,130,.25);
+  --ghost:#f6e9ec; --ghost-text:#7a5560;
+}
+:root[data-t="lav"]{--accent:#9b7bff;--accent2:#c4adff;--bg1:#ece6ff;--bg2:#f7f3ff;--shadow:rgba(155,123,255,.25)}
+:root[data-t="mint"]{--accent:#2fbf9b;--accent2:#7fe0c4;--bg1:#dff7ee;--bg2:#f2fcf8;--shadow:rgba(47,191,155,.25)}
+:root[data-t="peach"]{--accent:#ff9a4d;--accent2:#ffc08a;--bg1:#ffe8d6;--bg2:#fff7ef;--shadow:rgba(255,154,77,.25)}
+:root[data-t="sky"]{--accent:#4aa8ff;--accent2:#8fcaff;--bg1:#dcefff;--bg2:#f1f8ff;--shadow:rgba(74,168,255,.25)}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg1:#2a1a20; --bg2:#1d1519; --card:#35232a; --text:#ffe9ed; --muted:#d3a3ae;
+    --shadow:rgba(0,0,0,.4); --ghost:#4a313a; --ghost-text:#f0cdd5;
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:linear-gradient(160deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  font-family:"Nunito","Segoe UI",system-ui,-apple-system,sans-serif;
+  display:flex;justify-content:center;
+  overflow-x:hidden;overflow-y:auto;padding:16px;
+}
+#app{width:100%;max-width:440px;margin:auto}
+.card{
+  position:relative;width:100%;min-height:420px;
+  background:var(--card);border-radius:32px;padding:32px 24px 28px;
+  box-shadow:0 20px 60px var(--shadow);text-align:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+}
+.mascot{font-size:88px;line-height:1;animation:float 3s ease-in-out infinite;user-select:none}
+@keyframes float{50%{transform:translateY(-10px) rotate(-4deg)}}
+h1{margin:0;font-size:28px;line-height:1.2;overflow-wrap:anywhere}
+p{margin:0;color:var(--muted);font-size:16px;line-height:1.45}
+.btns{position:relative;display:flex;gap:14px;align-items:center;justify-content:center;margin-top:12px;min-height:64px;width:100%}
+button{font:inherit;font-weight:800;border:0;border-radius:999px;cursor:pointer;padding:14px 28px;transition:transform .15s ease,box-shadow .15s ease}
+#yes{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:18px;box-shadow:0 8px 20px var(--shadow);transform:scale(var(--s,1))}
+#no{background:var(--ghost);color:var(--ghost-text);font-size:16px;position:relative;z-index:5}
+#no.run{position:fixed}
+.hidden{display:none!important}
+.link{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:14px 28px;border-radius:999px;font-weight:800;box-shadow:0 8px 20px var(--shadow)}
+.link.off{opacity:.45;pointer-events:none}
+.plan{width:100%;display:flex;flex-direction:column;gap:12px;align-items:center}
+.plan .mascot{font-size:56px}
+.plan h1{font-size:24px}
+.lbl{font-weight:800;font-size:14px;text-align:left;width:100%;color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.chip{background:var(--ghost);color:var(--ghost-text);padding:10px 14px;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;display:inline-block}
+.chip.on{background:var(--accent);color:#fff}
+.field{width:100%;font:inherit;padding:12px 14px;border-radius:16px;border:2px solid var(--ghost);background:var(--card);color:var(--text);min-width:0}
+.field:focus{outline:none;border-color:var(--accent)}
+textarea.field{resize:vertical}
+.row{display:flex;gap:10px;width:100%}
+.back{position:absolute;top:12px;left:12px;padding:8px 12px;font-size:13px;background:var(--ghost);color:var(--ghost-text)}
+.b{align-items:stretch;justify-content:flex-start;text-align:left;gap:8px}
+.b .mascot{font-size:56px;text-align:center}
+.b h1,.b p{text-align:center}
+.sw{width:36px;height:36px;padding:0;border:3px solid transparent}
+.sw.
+on{border-color:var(--text)}
+.conf{position:fixed;top:-20px;font-size:24px;pointer-events:none;animation:fall linear forwards;z-index:20}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.9}}
+@media (prefers-reduced-motion:reduce){.mascot{animation:none}.conf{display:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var BASE = location.href.split("#")[0];
+var DEF = {
+  face:"🐰", q:"Привет! Давай познакомимся?", hint:"Новое знакомство, с нуля🙂",
+  yes:"Давай!", no:"Нет",
+  runs:"Ой, кнопка сломалась 🙈\nТы точно не промахнулась? 😄\nДавай ещё подумаем…\nНу пожалуйста 🥺\nКнопка «Нет» устала убегать 😅",
+  ok:"Ура! Где и когда встретимся?",
+  places:"☕ Кофейня\n🌳 Прогулка в парке\n🎬 Кино\n🖼️ Выставка",
+  msg:"Привет! Я согласилась познакомиться 🙂 Предлагаю встретиться:",
+  end:"Отлично, договорились!", tg:"bylka_byb", theme:"rose"
+};
+var FIELDS = [
+  ["q","Вопрос","i"],["hint","Подпись под вопросом","i"],["yes","Кнопка «Да»","i"],["no","Кнопка «Нет»","i"],
+  ["runs","Фразы, пока «Нет» убегает (каждая с новой строки)","a"],
+  ["ok","Заголовок после «Да»","i"],["places","Варианты места (каждый с новой строки)","a"],
+  ["msg","Начало сообщения тебе в Telegram","a"],["end","Заголовок в конце","i"],["tg","Твой ник в Telegram (без @)","i"]
+];
+var THEMES = {rose:"#ff7182",lav:"#9b7bff",mint:"#2fbf9b",peach:"#ff9a4d",sky:"#4aa8ff"};
+var cur = Object.assign({}, DEF);
+
+var $ = function(i){ return document.getElementById(i); };
+function el(t,c,x){ var e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; }
+function lines(s){ return String(s).split("\n").map(function(x){ return x.trim(); }).filter(Boolean); }
+
+/* ---- кодирование настроек в короткий #код (только буквы и цифры) ---- */
+var A = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+function toB(bytes){ var n = 1n, s = ""; bytes.forEach(function(b){ n = (n << 8n) | BigInt(b); }); while(n > 0n){ s = A[Number(n % 62n)] + s; n /= 62n; } return s; }
+function fromB(s){ var n = 0n, out = []; for(var i = 0; i < s.length; i++){ var k = A.indexOf(s[i]); if(k < 0) throw 0; n = n * 62n + BigInt(k); } while(n > 1n){ out.unshift(Number(n & 255n)); n >>= 8n; } return new Uint8Array(out); }
+async function pipe(b,Cls){ var st = new Blob([b]).stream().pipeThrough(new Cls("deflate-raw")); return new Uint8Array(await new Response(st).arrayBuffer()); }
+async function makeLink(){
+  var d = {}; for(var k in DEF) if(cur[k] !== DEF[k]) d[k] = cur[k];
+  var b = new TextEncoder().encode(JSON.stringify(d)), flag = 0;
+  if(window.CompressionStream){ try{ var z = await pipe(b, CompressionStream); if(z.length < b.length){ b = z; flag = 1; } }catch(e){} }
+  var all = new Uint8Array(b.length + 1); all[0] = flag; all.set(b, 1);
+  return BASE + "#" + toB(all);
+}
+async function decode(h){
+  var b = fromB(h), flag = b[0], r = b.slice(1);
+  if(flag === 1) r = await pipe(r, DecompressionStream);
+  return Object.assign({}, DEF, JSON.parse(new TextDecoder().decode(r)));
+}
+
+/* ---- страница приглашения ---- */
+function invite(c, preview){
+  document.documentElement.dataset.t = THEMES[c.theme] ? c.theme : "rose";
+  var app = $("app"); app.textContent = "";
+  var card = el("main","card"); app.appendChild(card);
+  if(preview){ var bk = el("button","back","← К редактору"); bk.onclick = builder; card.appendChild(bk); }
+  var tg = "https://t.me/" + String(c.tg).replace(/[^A-Za-z0-9_]/g,"");
+  var ask = el("section"), hint = el("p","",c.hint), btns = el("div","btns");
+  var yes = el("button","",c.yes), no = el("button","",c.no); yes.id = "yes"; no.id = "no";
+  btns.append(yes, no);
+  ask.append(el("div","mascot",c.face), el("h1","",c.q), hint, btns);
+  var plan = el("section","plan hidden"), done = el("section","hidden"), chosen = "";
+  var chips = el("div","chips"), pl = el("input","field"), dt = el("input","field"), tm = el("input","field");
+  var send = el("a","link off","Отправить в Telegram ✈️");
+  pl.placeholder = "Или предложи своё место…"; pl.maxLength = 60;
+  dt.type = "date"; tm.type = "time";
+  var n = new Date(); dt.min = n.getFullYear() + "-" + ("0"+(n.getMonth()+1)).slice(-2) + "-" + ("0"+n.getDate()).slice(-2);
+  function place(){ return pl.value.trim() || chosen; }
+  function chk(){ send.classList.toggle("off", !(place() && dt.value && tm.value)); }
+  lines(c.places).forEach(function(t){
+    var b = el("button","chip",t);
+    b.onclick = function(){
+      [].forEach.call(chips.children, function(x){ x.classList.remove("on"); });
+      b.classList.add("on"); chosen = t.replace(/^[^\p{L}\p{N}\s]+\s+/u,""); pl.value = ""; chk();
+    };
+    chips.appendChild(b);
+  });
+  pl.oninput = function(){ if(pl.value.trim()) [].forEach.call(chips.children, function(x){ x.classList.remove("on"); }); chk(); };
+  dt.oninput = chk; tm.oninput = chk;
+  var row = el("div","row");
+  [["Дата",dt],["Время",tm]].forEach(function(p){ var w = el("div"); w.style.flex = "1"; w.append(el("div","lbl",p[0]), p[1]); row.appendChild(w); });
+  send.target = "_blank"; send.rel = "noopener"; send.href = "#";
+  var ct = el("a","link","Написать"); ct.href = tg; ct.target = "_blank"; ct.rel = "noopener";
+  send.onclick = function(e){
+    if(send.classList.contains("off")){ e.preventDefault(); return; }
+    var p = dt.value.split("-");
+    var u = tg + "?text=" + encodeURIComponent(c.msg + " " + place() + ", " + p[2] + "." + p[1] + " в " + tm.value + ". Как тебе?");
+    send.href = u; ct.href = u;
+    setTimeout(function(){ plan.classList.add("hidden"); done.classList.remove("hidden"); }, 700);
+  };
+  plan.append(el("div","mascot","🥰"), el("h1","",c.ok), el("div","lbl","Место"), chips, pl, row, send);
+  done.append(el("div","mascot","🥰"), el("h1","",c.end), el("p","","Если Telegram не открылся, нажми кнопку ниже."), ct);
+  card.append(ask, plan, done);
+
+  var tries = 0, runs = lines(c.runs);
+  function dodge(){
+    tries++; no.classList.add("run");
+    no.style.left = (12 + Math.random() * (innerWidth - no.offsetWidth - 24)) + "px";
+    no.style.top = (12 + Math.random() * (innerHeight - no.offsetHeight - 24)) + "px";
+    if(runs.length) hint.textContent = runs[Math.min(tries - 1, runs.length - 1)];
+    yes.style.setProperty("--s", Math.min(1 + tries * .12, 1.9));
+    if(tries > 8) no.textContent = c.yes;
+  }
+  ["mouseenter","touchstart"].forEach(function(ev){
+    no.addEventListener(ev, function(e){ if(tries > 8) return; e.preventDefault(); dodge(); }, {passive:false});
+  });
+  no.onclick = function(){ if(tries > 8) say(); else dodge(); };
+  yes.onclick = say;
+  function say(){
+    ask.classList.add("hidden"); plan.classList.remove("hidden");
+    var em = ["💖","✨","🎉","🌸","💕","⭐"];
+    for(var i = 0; i < 40; i++){
+      var f = el("div","conf",em[i % 6]);
+      f.style.left = Math.random() * 100 + "vw";
+      f.style.animationDuration = 2.5 + Math.random() * 2.5 + "s";
+      f.style.animationDelay = Math.random() * .8 + "s";
+      document.body.appendChild(f);
+      setTimeout(f.remove.bind(f), 6500);
+    }
+  }
+}
+
+/* ---- конструктор ---- */
+function builder(){
+  document.documentElement.dataset.t = cur.theme;
+  var app = $("app"); app.textContent = "";
+  var card = el("main","card b"); app.appendChild(card);
+  card.append(el("div","mascot","💌"), el("h1","","Конструктор приглашения"),
+    el("p","","Поменяй тексты и цвет, нажми «Создать ссылку» и отправь её человеку."));
+
+  card.appendChild(el("div","lbl","Цвет"));
+  var sw = el("div","chips");
+  Object.keys(THEMES).forEach(function(k){
+    var b = el("button","sw" + (cur.theme === k ? " on" : "")); b.style.background = THEMES[k];
+    b.onclick = function(){ cur.theme = k; document.documentElement.dataset.t = k; [].forEach.call(sw.children, function(x){ x.classList.remove("on"); }); b.classList.add("on"); };
+    sw.appendChild(b);
+  });
+  card.appendChild(sw);
+
+  card.appendChild(el("div","lbl","Герой (эмодзи)"));
+  var fi = el("input","field"); fi.value = cur.face; fi.maxLength = 8; fi.oninput = function(){ cur.face = fi.value; };
+  var fc = el("div","chips");
+  ["🐰","🐻","🐱","🦊","🐼","🐶","🦄","🌸"].forEach(function(e){
+    var b = el("button","chip",e); b.
+[19.11.2026 14:33] Татьяна Алексеевна: onclick = function(){ cur.face = e; fi.value = e; }; fc.appendChild(b);
+  });
+  card.append(fi, fc);
+
+  FIELDS.forEach(function(f){
+    card.appendChild(el("div","lbl",f[1]));
+    var i = el(f[2] === "a" ? "textarea" : "input","field");
+    if(f[2] === "a") i.rows = 4;
+    i.value = cur[f[0]]; i.oninput = function(){ cur[f[0]] = i.value; };
+    card.appendChild(i);
+  });
+
+  var out = el("div"), act = el("div","chips"), pv = el("button","chip","👀 Предпросмотр"), mk = el("button","link","🔗 Создать ссылку");
+  act.style.marginTop = "10px"; act.append(pv, mk);
+  pv.onclick = function(){ invite(cur, true); };
+  mk.onclick = async function(){
+    var u = await makeLink(); out.textContent = "";
+    var inp = el("input","field"); inp.readOnly = true; inp.value = u;
+    var cp = el("button","chip","Скопировать"), op = el("a","chip","Открыть"), r = el("div","chips");
+    op.href = u; op.target = "_blank"; op.rel = "noopener";
+    cp.onclick = function(){
+      inp.select();
+      try{ navigator.clipboard.writeText(u).catch(function(){ document.execCommand("copy"); }); }catch(e){ document.execCommand("copy"); }
+      cp.textContent = "Скопировано ✓";
+    };
+    r.append(cp, op);
+    out.append(el("div","lbl","Твоя ссылка на приглашение:"), inp, r,
+      el("p","","Чтобы ссылка открывалась у других, включи доступ по ссылке через «Поделиться» у этой страницы."));
+  };
+  card.append(act, out);
+}
+
+function route(){
+  var h = location.hash.slice(1);
+  if(!h){ builder(); return; }
+  decode(h).then(function(c){ invite(c, false); }).catch(builder);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
